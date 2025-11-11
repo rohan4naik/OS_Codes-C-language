@@ -1,0 +1,67 @@
+/* Assignment LRU(Least Recently Used) */
+
+#include <stdio.h>
+
+int main() {
+    int frames[10], pages[30];
+    int nf, np, i, j, k, pos, pagefaults = 0;
+    int flag = 0;
+
+    printf("\nEnter number of frames: ");
+    scanf("%d", &nf);
+
+    printf("\nEnter number of pages: ");
+    scanf("%d", &np);
+
+    printf("\nEnter number of reference string: ");
+    for (i = 0; i < np; i++) {
+        scanf("%d", &pages[i]);
+    }
+
+    // Initialize all frames to -1
+    for (i = 0; i < nf; i++) {
+        frames[i] = -1;
+    }
+
+    printf("\nFrame Status:\n");
+
+    for (i = 0; i < np; i++) {
+        flag = 0;
+
+        // Check if page already exists (Page Hit)
+        for (j = 0; j < nf; j++) {
+            if (frames[j] == pages[i]) {
+                flag = 1;
+                pos = j;
+                break;
+            }
+        }
+
+        if (flag == 1) {
+            // If Page Hit: Move the hit page to top (LRU adjustment)
+            int temp = frames[pos];
+            for (k = pos; k > 0; k--) {
+                frames[k] = frames[k - 1];
+            }
+            frames[0] = temp;
+        } else {
+            // Page Fault: Insert new page using LRU strategy
+            pagefaults++;
+
+            for (j = nf - 1; j > 0; j--) {
+                frames[j] = frames[j - 1];
+            }
+            frames[0] = pages[i];
+        }
+
+        // Display current frame status
+        for (j = 0; j < nf; j++) {
+            printf("%d	", frames[j]);
+        }
+        printf("\n");
+    }
+
+    printf("\nTotal page faults = %d\n", pagefaults);
+
+    return 0;
+}
