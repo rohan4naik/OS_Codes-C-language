@@ -1,0 +1,117 @@
+/* Assignment Fork */
+
+
+include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+ 
+void sort_asc(int arr[], int n)
+{
+        int temp;
+        for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                        if (arr[j] > arr[j + 1]) {
+                                temp = arr[j];
+                                arr[j] = arr[j + 1];
+                                arr[j + 1] = temp;
+                        }
+}
+ 
+void sort_desc(int arr[], int n)
+{
+        int temp;
+        for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                        if (arr[j] < arr[j + 1]) {
+                                temp = arr[j];
+                                arr[j] = arr[j + 1];
+                                arr[j + 1] = temp;
+                        }
+}
+ 
+void print_arr(int arr[], int n)
+{
+        for (int i = 0; i < n; i++) {
+                printf("	%d", arr[i]);
+        }
+}
+ 
+int main()
+{
+        int n;
+        printf("\nEnter the number of elements in the array: ");
+        scanf("%d", &n);
+ 
+        int arr[n];
+        for (int i = 0; i < n; i++) {
+                printf("Enter %dth element: ", i);
+                scanf("%d", &arr[i]);
+        }
+ 
+        int pid = fork();
+                                
+        if (pid < 0)
+                printf("\nFork error\n");
+        else
+                if (pid > 0) {
+                        printf("\nParent process id: %d", getpid());
+                        sort_asc(arr, n);
+                        printf("\nArray sorted in ascending by parent:\n");
+                        print_arr(arr, n);
+                        printf("\n");
+                        wait(NULL);
+                } else {
+                        printf("\nChild process id: %d", getpid());
+                        sort_desc(arr, n);
+                        printf("\nArray sorted in descending by child:\n");
+                        print_arr(arr, n);
+                        printf("\n\n");
+                }
+        
+        return 0;
+}
+ 
+---------------------------------------------------
+ 
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+ 
+int main ()
+{
+int pid = fork();
+if (pid > 0){
+        printf("Parent id : %d\n", getpid());
+        printf("child id : %d\n", pid);
+} else if (pid == 0){
+        sleep(10);
+        printf("Child id : %d\n", getpid());
+        printf("Parent id : %d\n", getppid());
+}
+return 0;
+}
+ 
+---------------------------------
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+ 
+int main(void)
+{
+pid_t pid;
+if((pid = fork()) < 0)
+        printf("	fork error\n");
+else
+        if(pid==0)
+                printf("Child process id is %d\n", getpid());
+        else
+        {
+                sleep(10);
+                printf("*****parent\n");
+                system("ps -axj | tail");
+        }
+exit(0);
+}
+
