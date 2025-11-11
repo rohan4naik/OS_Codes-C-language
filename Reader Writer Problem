@@ -1,0 +1,73 @@
+/* Assignment RW */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+ 
+sem_t mutex, wrt;
+int sharedvar = 84 ;
+int readcount = 0;
+pthread_t readers[5], writers[5];
+ 
+void *reader(void *arg)
+{
+    sem_wait(&mutex);
+    readcount++;
+    if (readcount == 1)
+        sem_wait(&wrt);
+    sem_post(&mutex);
+ 
+    printf("\nReader %d is reading. Value of sharedvar = %d\n", *((int *)arg), sharedvar);
+    sleep(1);
+ 
+    sem_wait(&mutex);
+    readcount--;
+    if (readcount == 0)
+        sem_post(&wrt);
+    sem_post(&mutex);
+ 
+    return NULL;
+}
+ 
+void *writer(void *arg)
+{
+    printf("\nWriter %d is trying to enter\n", *((int *)arg));
+    sem_wait(&wrt);
+ 
+    sharedvar++;
+    printf("\nWriter %d changed value of shared var to %d\n", *((int *)arg), sharedvar);
+    sleep(1);
+ 
+    sem_post(&wrt);
+    printf("\nWriter %d is out of CS\n", *((int *)arg));
+ 
+    return NULL;
+}
+ 
+int main()
+{
+    int n2, i;
+    printf("\n\nEnter the number of readers & writers: ");
+    scanf("%d", &n2);
+ 
+    sem_init(&mutex, 0, 1);
+    sem_init(&wrt, 0, 1);
+ 
+    int ids[n2];
+    for (i = 0; i < n2; i++)
+    {
+        ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &ids[i]);
+        pthread_create(&readers[i], NULL, reader, &ids[i]);
+    }
+ 
+    for (i = 0; i < n2; i++)
+    {
+        pthread_join(writers[i], NULL);
+        pthread_join(readers[i], NULL);
+    }
+ 
+    return 0;
+}
